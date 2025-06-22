@@ -1,140 +1,109 @@
-# 🧑‍🎓 Face Recognition Attendance System
+# 🤖 AWS Telegram Bot
 
-This is a Python-based face recognition attendance system that uses **AWS Rekognition** for facial matching and stores attendance logs in a **SQLite database**.
-
-- 📸 Captures real-time webcam feed
-- 🧠 Compares with stored student photos using AWS Rekognition
-- 🟢 Marks students present if matched
-- 📝 Logs attendance (Present/Absent) with timestamps
-- 📂 Structured, modular, and ready for deployment
+A Telegram bot built with `python-telegram-bot` and `boto3` to interact with AWS services such as EC2, DynamoDB, Auto Scaling, and CloudWatch directly through Telegram commands.
 
 ---
 
-## 📁 Project Structure
+## 📌 All Supported Commands
+
+### 🟢 /start
+- Lists all available commands with brief usage.
+- Helps users understand how to interact with the bot.
+
+---
+
+### 🟢 /launch <instance_name> <instance_type> <key_name>
+- Launches a new EC2 instance.
+- Uses a predefined AMI ID and Subnet ID.
+- Applies a tag with the given instance name.
+- Responds with the launched instance’s ID.
+
+---
+
+### 🟢 /dynamo <table_name>
+- Creates a new DynamoDB table.
+- Table uses `id` as the partition key of type String.
+- Sets provisioned throughput (read/write capacity units).
+
+---
+
+### 🟢 /autoscale <instance_id> <target_group_arn>
+- Sets up an Auto Scaling Group for a given EC2 instance.
+- Uses predefined Subnet ID.
+- Configures MinSize=1, MaxSize=3, DesiredCapacity=1.
+
+---
+
+### 🟢 /cpu <instance_id>
+- Retrieves CPU utilization metrics using CloudWatch.
+- Generates and sends a plot of CPU usage for the last 60 minutes.
+
+---
+
+### 🟢 /connect <instance_id>
+- Provides the public DNS name of an EC2 instance.
+- Suggests an SSH command to connect to it using a `.pem` file.
+
+---
+
+### 🟢 /create_keypair <key_name>
+- Creates an EC2 key pair with the provided name.
+- Sends the `.pem` file to the user through Telegram.
+- Deletes the file locally after sending.
+
+---
+
+## 🗂️ Project Structure
 
 ```
-attendance-system/
+aws_telegram_bot/
 │
-├── main.py                 # Main script to run the system
-├── config.py               # Configuration (DB path, AWS region, etc.)
-├── requirements.txt        # Dependencies
-├── .gitignore              # Ignore rules
-│
-├── core/
-│   ├── camera/
-│   │   └── webcam.py
-│   ├── db/
-│   │   ├── connection.py
-│   │   └── models.py
-│   ├── recognition/
-│   │   └── rekognition_handler.py
-│   └── utils/
-│       └── logger.py
-│
-├── data/                   # SQLite database (`attendance.db`)
-├── logs/                   # Application log files
-└── assets/ (optional)      # Student images (for insert script)
+├── bot.py                   # Main entry point
+├── config.py                # AWS config: AMI_ID, SUBNET_ID
+├── handlers/                # Telegram command handlers
+│   ├── start.py
+│   ├── ec2.py
+│   ├── dynamodb.py
+│   ├── autoscaling.py
+│   └── monitoring.py
+├── utils/
+│   └── logger.py            # Logger setup
+├── requirements.txt         # Python dependencies
+└── README.md                # Project documentation
 ```
 
 ---
 
-## 🔧 Setup Instructions
+## ⚙️ Setup
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/your-username/attendance-system.git
-cd attendance-system
-```
-
-### 2. Install Dependencies
-
+1. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure AWS
-
-- Set up AWS credentials (using `~/.aws/credentials` or environment variables)
-- Ensure Rekognition is enabled in your AWS account
-
-### 4. Add Students to Database
-
-Use a helper script to add students:
-
-```python
-from core.db.connection import get_connection
-from core.db.models import create_tables
-
-def add_student(id, name, image_path):
-    conn = get_connection()
-    create_tables(conn)
-    with open(image_path, 'rb') as f:
-        photo = f.read()
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO students (id, name, photo) VALUES (?, ?, ?)', (id, name, photo))
-    conn.commit()
-    conn.close()
-```
-
-Run this script for each student image.
-
----
-
-## ▶️ Run the Application
-
+2. Set environment variable for the bot:
 ```bash
-python main.py
+export TELEGRAM_BOT_TOKEN=your_bot_token
 ```
 
-- Press `q` to stop the session
-- Absent students will be automatically marked at the end
-
----
-
-## 📦 Dependencies
-
-- `opencv-python`
-- `boto3`
-- `pillow`
-- `sqlite3` (built-in)
-
-Install them with:
-
+3. Run the bot:
 ```bash
-pip install -r requirements.txt
+python bot.py
 ```
 
 ---
 
-## 📌 Features
+## 🧪 Built With
 
-- ✅ AWS Rekognition for face comparison
-- ✅ SQLite for offline, lightweight data storage
-- ✅ Logs attendance and errors in `logs/attendance.log`
-- ✅ Modular code with clean architecture
-
----
-
-## 🚫 .gitignore Includes
-
-```
-__pycache__/
-*.db
-logs/
-.env
-```
+- [python-telegram-bot](https://python-telegram-bot.org)
+- [boto3](https://boto3.amazonaws.com)
+- [matplotlib](https://matplotlib.org)
+- asyncio
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**. Feel free to modify and use it for educational or production purposes.
+MIT License – free to use and modify.
 
----
-
-## 🙋‍♂️ Author
-
-**Aditya Gautam**  
-Feel free to reach out for collaboration or questions!
 
